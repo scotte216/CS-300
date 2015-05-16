@@ -5,6 +5,7 @@
  */
 package taskmanager;
 
+
 /**
  *
  * @author scott ewing
@@ -16,6 +17,15 @@ public class TaskManager {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        
+        ToDo mainscreen = new ToDo();
+        mainscreen.show(true);
+        
+        SQLConnect mySQL = new SQLConnect();
+        mySQL.ConnectDB();
+        
+       
+        
     }
     
 }
