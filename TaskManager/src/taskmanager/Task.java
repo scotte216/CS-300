@@ -11,39 +11,27 @@ package taskmanager;
  */
 public class Task {
     private String taskToDo;
-    private int taskType; //0 to-do, 1-in progress, 2-done
+    private int reference;
     
-    public Task ()
+    public Task(String task,int ref)
     {
-        taskToDo = new String();
-        taskType = 0;
-        
-    }
-    
-    public Task (String to_add)
-    {
-        taskToDo = to_add;
-        taskType = 0;
+        taskToDo = task;
+        reference = ref;
     }
     
     public Task (Task to_add)
     {
         taskToDo = to_add.taskToDo;
-        taskType = to_add.taskType;
+        reference = to_add.reference;
+    }
+
+    public int getReference()
+    {
+        return reference;
     }
     
-    public boolean setType(int new_type)
+    public String toString()
     {
-        if (new_type >= 0 && new_type <= 2)
-        {
-            taskType = new_type;
-            return true;
-        }
-        return false;
-    }
-    
-    public int getType()
-    {
-        return taskType;
+        return taskToDo;
     }
 }
