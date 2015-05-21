@@ -18,7 +18,7 @@ public class LogInHandler {
         users[0] = new User("scott","1234");
         users[1] = new User("sally","4321");
         users[2] = new User("mark","6666");
-        users[3] = new User("mary","password");
+        users[3] = new User("libbey","password");
                 
     }
     

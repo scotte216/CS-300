@@ -15,10 +15,28 @@ import java.sql.*;
  * @author scott ewing
  */
 public class TaskManager extends javax.swing.JFrame {
-    private SQLConnect database = new SQLConnect();
-    private String name = "scott";
+    private final SQLConnect database = new SQLConnect();
+    private String name;
     
-    @SuppressWarnings("unchecked")
+ 
+            
+    public TaskManager() {
+        this.name = null;
+        this.startup();
+    }
+    
+    private void startup(){
+        initComponents();
+        LogInDialog login = new LogInDialog(new javax.swing.JFrame(), true);
+        
+        name = login.getUser();
+        TitleLabel.setText("Task manager for: '" + name + "'");
+        LogOutMenuItem.setText("Log out '" + name + "'");
+        FillList(toDoList,0);
+        FillList(inProgressList,1);
+        FillList(doneList,2);
+    }
+        @SuppressWarnings("unchecked")
     final void FillList(JList to_fill, int tasktype)
     {
         try {
@@ -43,17 +61,8 @@ public class TaskManager extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null,e);
         }
         
-    }   
-            
-    public TaskManager() {
-        
-        this.name = null;
-        initComponents();
-        FillList(toDoList,0);
-        FillList(inProgressList,1);
-        FillList(doneList,2);
-    }
-
+    }  
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -70,14 +79,18 @@ public class TaskManager extends javax.swing.JFrame {
         toDoLabel = new javax.swing.JLabel();
         inProgressLabel = new javax.swing.JLabel();
         doneLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        doneScrollPane = new javax.swing.JScrollPane();
         doneList = new javax.swing.JList();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        inProgressScrollPane = new javax.swing.JScrollPane();
         inProgressList = new javax.swing.JList();
-        jScrollPane4 = new javax.swing.JScrollPane();
+        toDoScrollPane = new javax.swing.JScrollPane();
         toDoList = new javax.swing.JList();
-        jMenuBar1 = new javax.swing.JMenuBar();
+        TitleLabel = new javax.swing.JLabel();
+        FileMenuBar = new javax.swing.JMenuBar();
         TaskManagerMenu = new javax.swing.JMenu();
+        LogOutMenuItem = new javax.swing.JMenuItem();
+        fileMenuSeparator = new javax.swing.JPopupMenu.Separator();
+        QuitMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Task Manager");
@@ -98,14 +111,14 @@ public class TaskManager extends javax.swing.JFrame {
             }
         });
 
-        promoteToInProgressButton.setText(">>");
+        promoteToInProgressButton.setText(">");
         promoteToInProgressButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 promoteToInProgressButtonActionPerformed(evt);
             }
         });
 
-        promoteToDoneButton.setText(">>");
+        promoteToDoneButton.setText(">");
         promoteToDoneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 promoteToDoneButtonActionPerformed(evt);
@@ -125,81 +138,118 @@ public class TaskManager extends javax.swing.JFrame {
 
         doneLabel.setText("Done");
 
-        jScrollPane1.setViewportView(doneList);
+        doneScrollPane.setViewportView(doneList);
 
-        jScrollPane3.setViewportView(inProgressList);
+        inProgressScrollPane.setViewportView(inProgressList);
 
-        jScrollPane4.setViewportView(toDoList);
+        toDoScrollPane.setViewportView(toDoList);
+
+        TitleLabel.setText("Title");
 
         TaskManagerMenu.setText("File");
-        jMenuBar1.add(TaskManagerMenu);
 
-        setJMenuBar(jMenuBar1);
+        LogOutMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        LogOutMenuItem.setText("Log Out");
+        LogOutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LogOutMenuItemActionPerformed(evt);
+            }
+        });
+        TaskManagerMenu.add(LogOutMenuItem);
+        TaskManagerMenu.add(fileMenuSeparator);
+
+        QuitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
+        QuitMenuItem.setText("Quit");
+        QuitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                QuitMenuItemActionPerformed(evt);
+            }
+        });
+        TaskManagerMenu.add(QuitMenuItem);
+
+        FileMenuBar.add(TaskManagerMenu);
+
+        setJMenuBar(FileMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(96, 96, 96)
-                .addComponent(toDoLabel)
-                .addGap(224, 224, 224)
-                .addComponent(inProgressLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(doneLabel)
-                .addGap(104, 104, 104))
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(61, 61, 61)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(editTaskButton)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(76, 76, 76)
+                                .addComponent(toDoLabel))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(toDoScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(promoteToInProgressButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(deleteTaskButton)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(inProgressScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(promoteToDoneButton)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(doneScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(59, 59, 59)
+                                .addComponent(inProgressLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(doneLabel)
+                                .addGap(115, 115, 115)))
+                        .addGap(20, 20, 20))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(newTaskButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deleteTaskButton))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(promoteToInProgressButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(promoteToDoneButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(24, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(editTaskButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(22, 22, 22)
+                                .addComponent(TitleLabel)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(inProgressLabel)
-                        .addComponent(doneLabel))
-                    .addComponent(toDoLabel))
+                .addComponent(TitleLabel)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(115, 115, 115)
+                        .addComponent(promoteToDoneButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(toDoLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(toDoScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(113, 113, 113)
+                                .addComponent(promoteToInProgressButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(doneScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
-                            .addComponent(jScrollPane4)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(newTaskButton)
+                            .addComponent(editTaskButton)
+                            .addComponent(deleteTaskButton)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(98, 98, 98)
-                        .addComponent(promoteToInProgressButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(100, 100, 100)
-                        .addComponent(promoteToDoneButton)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(newTaskButton)
-                    .addComponent(deleteTaskButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(editTaskButton)
-                .addContainerGap(13, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(inProgressLabel)
+                            .addComponent(doneLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(inProgressScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         pack();
@@ -330,6 +380,22 @@ public class TaskManager extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_editTaskButtonActionPerformed
 
+    private void LogOutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogOutMenuItemActionPerformed
+        toDoLabel.setText(null);
+        inProgressLabel.setText(null);
+        doneLabel.setText(null);
+        this.name = null;
+        TitleLabel.setText(null);
+        this.setVisible(false);
+        this.startup();
+        this.setVisible(true);
+        
+    }//GEN-LAST:event_LogOutMenuItemActionPerformed
+
+    private void QuitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_QuitMenuItemActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_QuitMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -369,21 +435,25 @@ public class TaskManager extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuBar FileMenuBar;
+    private javax.swing.JMenuItem LogOutMenuItem;
+    private javax.swing.JMenuItem QuitMenuItem;
     private javax.swing.JMenu TaskManagerMenu;
+    private javax.swing.JLabel TitleLabel;
     private javax.swing.JButton deleteTaskButton;
     private javax.swing.JLabel doneLabel;
     private javax.swing.JList doneList;
+    private javax.swing.JScrollPane doneScrollPane;
     private javax.swing.JButton editTaskButton;
+    private javax.swing.JPopupMenu.Separator fileMenuSeparator;
     private javax.swing.JLabel inProgressLabel;
     private javax.swing.JList inProgressList;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane inProgressScrollPane;
     private javax.swing.JButton newTaskButton;
     private javax.swing.JButton promoteToDoneButton;
     private javax.swing.JButton promoteToInProgressButton;
     private javax.swing.JLabel toDoLabel;
     protected javax.swing.JList toDoList;
+    private javax.swing.JScrollPane toDoScrollPane;
     // End of variables declaration//GEN-END:variables
 }
