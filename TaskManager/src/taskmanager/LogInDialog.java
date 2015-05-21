@@ -5,20 +5,28 @@
  */
 package taskmanager;
 
+import javax.swing.InputMap;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+
 /**
  *
  * @author Scott
  */
 public class LogInDialog extends javax.swing.JDialog {
-
+    private LogInHandler handler;
+    private String username;
+    
     /**
      * Creates new form LogInDialog
      */
     public LogInDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        getRootPane().setDefaultButton(logInButton);
+        handler = new LogInHandler();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -54,6 +62,11 @@ public class LogInDialog extends javax.swing.JDialog {
         passwordLabel.setText("Password:");
 
         logInButton.setText("Log In");
+        logInButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logInButtonActionPerformed(evt);
+            }
+        });
 
         cancelButton.setText("Cancel");
 
@@ -84,7 +97,7 @@ public class LogInDialog extends javax.swing.JDialog {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(passwordField)
                                 .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(98, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -101,7 +114,7 @@ public class LogInDialog extends javax.swing.JDialog {
                     .addComponent(passwordLabel))
                 .addGap(3, 3, 3)
                 .addComponent(errorMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(logInButton)
                     .addComponent(cancelButton))
@@ -114,6 +127,28 @@ public class LogInDialog extends javax.swing.JDialog {
     private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_passwordFieldActionPerformed
+
+    private void logInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInButtonActionPerformed
+        // TODO add your handling code here:
+        String temp = new String(passwordField.getPassword());
+        User to_check = new User(nameField.getText(),temp);
+        
+        if (handler.logIn(to_check))
+        {
+            errorMessageLabel.setText("hooray!");
+           // TaskManager taskManager = new TaskManager(to_check.getName());
+           // taskManager.setVisible(true);
+            this.username = to_check.getName();
+           // this.dispose();
+        }
+        else
+        {
+            errorMessageLabel.setText("Incorrect username/password");
+            nameField.setText(null);
+            passwordField.setText(null);
+        }
+        
+    }//GEN-LAST:event_logInButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -153,6 +188,7 @@ public class LogInDialog extends javax.swing.JDialog {
                     }
                 });
                 dialog.setVisible(true);
+ 
             }
         });
     }
