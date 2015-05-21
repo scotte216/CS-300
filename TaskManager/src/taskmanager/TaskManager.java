@@ -45,7 +45,9 @@ public class TaskManager extends javax.swing.JFrame {
         
     }   
             
-    public TaskManager() {
+    public TaskManager(String name) {
+
+        this.name = name;
         initComponents();
         FillList(toDoList,0);
         FillList(inProgressList,1);
@@ -363,7 +365,7 @@ public class TaskManager extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new TaskManager().setVisible(true);
+                new TaskManager(args[0]).setVisible(true);
             }
         });
     }
