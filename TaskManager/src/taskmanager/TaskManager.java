@@ -41,10 +41,7 @@ public class TaskManager extends javax.swing.JFrame {
     final void FillList(JList to_fill, int tasktype)
     {
         try {
-            Connection con =  database.ConnectDB();
-            Statement stmt = con.createStatement();
-            String query = "SELECT * FROM TASKS WHERE NAME = '"+name+"' AND TASKTYPE = '"+tasktype+"'";
-            ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = database.getResults(name, tasktype);
             
             DefaultListModel<Task> DLM = new DefaultListModel<>();
             
@@ -53,15 +50,13 @@ public class TaskManager extends javax.swing.JFrame {
                 Task temp = new Task(rs.getString("task"),Integer.parseInt(rs.getString("reference")));
                 DLM.addElement(temp);
             }
- 
             to_fill.setModel(DLM);
  
         }
         catch(SQLException e)
         {
             JOptionPane.showMessageDialog(null,e);
-        }
-        
+        } 
     }  
     
     /**
@@ -243,66 +238,30 @@ public class TaskManager extends javax.swing.JFrame {
     private void promoteToInProgressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoteToInProgressButtonActionPerformed
         
         if (toDoList.getSelectedIndex() >= 0){
-            try {
-                Task temp = (Task) toDoList.getSelectedValue();
-                
-                Connection con =  database.ConnectDB();
-                Statement stmt = con.createStatement();
-                String query = "UPDATE TASKS SET TASKTYPE = 1 WHERE REFERENCE = '"+temp.getReference()+"'";
+            Task temp = (Task) toDoList.getSelectedValue();
+            database.promote(temp,1);
 
-                stmt.execute(query);
-                
-                FillList(toDoList,0);
-                FillList(inProgressList,1);
-
-            }
-            catch(SQLException e)
-            {
-                JOptionPane.showMessageDialog(null,e);
-           }
+            FillList(toDoList,0);
+            FillList(inProgressList,1);
         }
     }//GEN-LAST:event_promoteToInProgressButtonActionPerformed
 
     private void promoteToDoneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoteToDoneButtonActionPerformed
         if (inProgressList.getSelectedIndex() >= 0){
-            try {
-                Task temp = (Task) inProgressList.getSelectedValue();
-                
-                Connection con =  database.ConnectDB();
-                Statement stmt = con.createStatement();
-                String query = "UPDATE TASKS SET TASKTYPE = 2 WHERE REFERENCE = '"+temp.getReference()+"'";
+            Task temp = (Task) inProgressList.getSelectedValue();
+            database.promote(temp,2);
 
-                stmt.execute(query);
-                
-                FillList(inProgressList,1);
-                FillList(doneList,2);
-
-            }
-            catch(SQLException e)
-            {
-                JOptionPane.showMessageDialog(null,e);
-           }
+            FillList(inProgressList,1);
+            FillList(doneList,2);
         }
     }//GEN-LAST:event_promoteToDoneButtonActionPerformed
 
     private void deleteTaskButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTaskButtonActionPerformed
         if (doneList.getSelectedIndex() >= 0){
-            try {
-                Task temp = (Task) doneList.getSelectedValue();
-                
-                Connection con =  database.ConnectDB();
-                Statement stmt = con.createStatement();
-                String query = "DELETE FROM TASKS WHERE REFERENCE = '"+temp.getReference()+"'";
+            Task temp = (Task) doneList.getSelectedValue();
 
-                stmt.execute(query);
-                
-                FillList(doneList,2);
-
-            }
-            catch(SQLException e)
-            {
-                JOptionPane.showMessageDialog(null,e);
-           }
+            database.delete(temp);
+            FillList(doneList,2);
         }
    
     }//GEN-LAST:event_deleteTaskButtonActionPerformed
@@ -314,24 +273,13 @@ public class TaskManager extends javax.swing.JFrame {
         //If cancel is hit, newToDotxt is null. If okay is hit, but no text is entered, newToDotxt is not null but empty "". 
         if (newToDotxt != null && newToDotxt.length() > 0)
         {
-            try {
-                Connection con =  database.ConnectDB();
-                Statement stmt = con.createStatement();
-                //With NULL for an integer unique value, it will automatically pick the next biggest integer. 
-                String query = "INSERT INTO TASKS VALUES(NULL,'"+name+"','"+newToDotxt+"','0')";
-                stmt.execute(query);
-            }   
-            catch(SQLException e)
-            {
-                JOptionPane.showMessageDialog(null,e);
-            }
+            database.add(name, newToDotxt);
         }
         FillList(toDoList,0);
         
     }//GEN-LAST:event_newTaskButtonActionPerformed
 
     private void editTaskButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editTaskButtonActionPerformed
-        
         if (toDoList.getSelectedIndex() >= 0)
         {
             Task temp = (Task) toDoList.getSelectedValue();
@@ -340,27 +288,16 @@ public class TaskManager extends javax.swing.JFrame {
             //Will be null if user hits cancel.
             if (editedToDotxt != null)
             {
-                try {
-                    Connection con = database.ConnectDB();
-                    Statement stmt = con.createStatement();
-                    String query;
-                    
-                    //Update the DB with the new text
-                    if (editedToDotxt.length() > 0)
-                    {
-                        query = "UPDATE TASKS SET TASK = '"+editedToDotxt+"' WHERE REFERENCE  = '"+temp.getReference()+"'";
-                    }
-                    //else if the text is empty, assume they want to delete the task rather than have a task with an empty string "" 
-                    else
-                    {
-                        query = "DELETE FROM TASKS WHERE REFERENCE = '"+temp.getReference()+"'";
-                    }
-                    stmt.execute(query);
-                    FillList(toDoList,0);
-
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, ex);
+                if (editedToDotxt.length() > 0)
+                {
+                    database.edit(new Task(editedToDotxt,temp.getReference()));
                 }
+                //else if the text is empty, assume they want to delete the task rather than have a task with an empty string "" 
+                else
+                {
+                    database.delete(temp);
+                }
+                FillList(toDoList,0);
             }
         }
     }//GEN-LAST:event_editTaskButtonActionPerformed

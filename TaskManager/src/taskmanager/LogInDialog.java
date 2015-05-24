@@ -27,8 +27,8 @@ public class LogInDialog extends javax.swing.JDialog {
     public LogInDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        //getRootPane().setDefaultButton(logInButton);
        
+        //Enables 'enter' to click the logInButton after typing password.
         passwordField.addKeyListener(new KeyListener(){
             @Override public void keyTyped(KeyEvent e){
                 if (e.getKeyChar() == KeyEvent.VK_ENTER){
@@ -45,9 +45,7 @@ public class LogInDialog extends javax.swing.JDialog {
     
     public String getUser()
     {
-        
         this.setVisible(true);
-        
         return username;
     }
     /**
@@ -59,7 +57,7 @@ public class LogInDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        UserLoginLabel = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
         passwordField = new javax.swing.JPasswordField();
         userNameLable = new javax.swing.JLabel();
@@ -72,7 +70,7 @@ public class LogInDialog extends javax.swing.JDialog {
         setTitle("User Login");
         setResizable(false);
 
-        jLabel1.setText("User Login");
+        UserLoginLabel.setText("User Login");
 
         passwordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -107,7 +105,7 @@ public class LogInDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
+                    .addComponent(UserLoginLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -133,7 +131,7 @@ public class LogInDialog extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(UserLoginLabel)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -155,19 +153,15 @@ public class LogInDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_passwordFieldActionPerformed
 
     private void logInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInButtonActionPerformed
-        // TODO add your handling code here:
         String temp = new String(passwordField.getPassword());
         User to_check = new User(nameField.getText(),temp);
         
         if (handler.logIn(to_check))
         {
             errorMessageLabel.setText("hooray!");
-           // TaskManager taskManager = new TaskManager(to_check.getName());
-           // taskManager.setVisible(true);
             this.username = to_check.getName();
             this.dispose();
         }
@@ -229,9 +223,9 @@ public class LogInDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel UserLoginLabel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel errorMessageLabel;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JButton logInButton;
     private javax.swing.JTextField nameField;
     private javax.swing.JPasswordField passwordField;

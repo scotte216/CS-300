@@ -1,13 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This class is a stub for checking usernames and passwords. Since login security
+ * is outside the scope of this project, this class will replace any robust
+ * security measures. 
  */
 package taskmanager;
 
 /**
  *
- * @author scott
+ * @author scott ewing
  */
 public class LogInHandler {
     User [] users;
