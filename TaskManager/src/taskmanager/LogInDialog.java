@@ -14,15 +14,17 @@ import javax.swing.KeyStroke;
 
 
 /**
- *
+ * This is the log-in pop-up dialog. It authenticates users. 
  * @author Scott
  */
 public class LogInDialog extends javax.swing.JDialog {
-    private LogInHandler handler;
+    private final LogInHandler handler; //The handler to authenticate users.
     private String username;
     
     /**
      * Creates new form LogInDialog
+     * @param parent
+     * @param modal
      */
     public LogInDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -43,6 +45,8 @@ public class LogInDialog extends javax.swing.JDialog {
         handler = new LogInHandler();
     }
     
+    //Method to return a valid username from this pop-up dialog.
+    //It only returns upon closure of this window. 
     public String getUser()
     {
         this.setVisible(true);
@@ -152,21 +156,27 @@ public class LogInDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //Automatically generated code that I am unable to remove. Does nothing. 
     private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
     }//GEN-LAST:event_passwordFieldActionPerformed
 
+    //Describes action to occur when Log In button is pressed
     private void logInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logInButtonActionPerformed
+        //This creates a new User object to check with the log in handler.
         String temp = new String(passwordField.getPassword());
         User to_check = new User(nameField.getText(),temp);
         
+        //logIn returns true/false depending on if User to_check is authenticated
         if (handler.logIn(to_check))
         {
-            errorMessageLabel.setText("hooray!");
+            //If it's good, set the username of this object and .dispose()
+            //which will return the username to the caller.
             this.username = to_check.getName();
             this.dispose();
         }
         else
         {
+            //If it's bad, display error message and let them try again. 
             errorMessageLabel.setText("Incorrect username/password");
             nameField.setText(null);
             passwordField.setText(null);
@@ -174,6 +184,7 @@ public class LogInDialog extends javax.swing.JDialog {
         
     }//GEN-LAST:event_logInButtonActionPerformed
 
+    //If cancelButton is pressed, exit the program. 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         // TODO add your handling code here:
         System.exit(0);
@@ -208,6 +219,7 @@ public class LogInDialog extends javax.swing.JDialog {
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 LogInDialog dialog = new LogInDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {

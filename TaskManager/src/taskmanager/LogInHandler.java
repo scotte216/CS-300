@@ -12,6 +12,8 @@ package taskmanager;
 public class LogInHandler {
     User [] users;
     
+    //The constructor creates 4 test users with passwords.
+    //These are the only valid accounts for this project.
     public LogInHandler()
     {
         users = new User[4];
@@ -22,6 +24,8 @@ public class LogInHandler {
                 
     }
     
+    //This routine checks if a given User to_check matches any of the
+    //4 existing users in this Class. 
     public Boolean logIn(User to_check)
     {
         Boolean result = false;

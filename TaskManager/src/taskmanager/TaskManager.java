@@ -7,6 +7,8 @@ package taskmanager;
 
 import javax.swing.*;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -26,37 +28,77 @@ public class TaskManager extends javax.swing.JFrame {
         this.startup();
     }
     
+    /*
+    * This routine is executed to run several routines when the GUI is drawn
+    * These are custom functions as opposed to the automatically generated 
+    * code found in 'initComponets()' 
+    * 
+    */
     private void startup(){
 
+        //Creates a new log-in dialog box to prompt for the username and password
+        //See LogInDialog.java for details.
+        //Returns String name of the verified username. 
         LogInDialog login = new LogInDialog(new javax.swing.JFrame(), true);
         
         name = login.getUser();
+        //If the LogInDialog is closed via the red X in the upper right, name
+        //will be null. End program.
+        if (name == null)
+            System.exit(0);
+        
+        //Set up custom text for the user. 
         TitleLabel.setText("Task manager for: '" + name + "'");
         LogOutMenuItem.setText("Log out '" + name + "'");
+
+        //fill our three JLists. Type 0 is for To Do, 1- for In Progress and 2 - Done
         FillList(toDoList,0);
         FillList(inProgressList,1);
         FillList(doneList,2);
     }
-        @SuppressWarnings("unchecked")
-    final void FillList(JList to_fill, int tasktype)
+    
+    @SuppressWarnings("unchecked")
+    //Method to fill a given JList with data of tasktype. 
+    //0 = To Do
+    //1 = In Progress
+    //2 = Done
+    final void FillList(JList to_fill, int tasktype) 
     {
+        if(tasktype < 0 || tasktype > 2)
+        {
+            System.out.println("Error in TaskManager.Java.FillList() -- Tasktype must be 0, 1, or 2.");
+            return; 
+        }
+        
         try {
+            //Query our database (SQLConnect.java for details) to get the results for
+            //a given username and task type.
             ResultSet rs = database.getResults(name, tasktype);
             
+            //Set up our DefaultListModel to use class Task. 
             DefaultListModel<Task> DLM = new DefaultListModel<>();
             
+            //Parse through all the rows in the result set
             while (rs.next())
             {
-                Task temp = new Task(rs.getString("task"),Integer.parseInt(rs.getString("reference")));
-                DLM.addElement(temp);
+                Task temp;
+                try {
+                    //Pull the result from current row column "task" and column "reference", parsing as
+                    //a string and integer respectively int a temporary Task object.
+                    temp = new Task(rs.getString("task"),Integer.parseInt(rs.getString("reference")));
+                    
+                    //add the temporary Task object into the Default List Model
+                    DLM.addElement(temp);
+                } catch (Task.TaskException ex) {
+                    System.out.println(ex);
+                }
             }
+            
+            //Set the model for the given JList to the DLM now filled with Tasks.
             to_fill.setModel(DLM);
- 
+        } catch (SQLException ex) {
+            Logger.getLogger(TaskManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-        catch(SQLException e)
-        {
-            JOptionPane.showMessageDialog(null,e);
-        } 
     }  
     
     /**
@@ -235,86 +277,147 @@ public class TaskManager extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //This function describes the action to be taken when the button to promote tasks
+    //from To Do to In Progress. 
     private void promoteToInProgressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoteToInProgressButtonActionPerformed
         
+        //Check to ensure a Task is selected from the To Do JList.
         if (toDoList.getSelectedIndex() >= 0){
+            
+            //Get the selected item and cast it as a Task
             Task temp = (Task) toDoList.getSelectedValue();
+            
+            //Execute the promote() method on the database (see SQLConnect.java)
+            //Expects parameters 'task' and new task type integer:
+            //0 = To Do
+            //1 = In Progress
+            //2 = Done
             database.promote(temp,1);
-
+            
+            //Refresh the affected lists: toDoList and inProgressList
             FillList(toDoList,0);
             FillList(inProgressList,1);
         }
     }//GEN-LAST:event_promoteToInProgressButtonActionPerformed
 
+    //This method describes the behavior when the button to promote an item from 
+    // In Progress to Done
     private void promoteToDoneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promoteToDoneButtonActionPerformed
+        //Ensure an item is selected
         if (inProgressList.getSelectedIndex() >= 0){
+            //Store that item into a Task object
             Task temp = (Task) inProgressList.getSelectedValue();
+            
+            //Update the database, giving it a Task and a new tasktype
+            //0 = To Do
+            //1 = In Progress
+            //2 = Done
             database.promote(temp,2);
-
+            
+            //Refresh the affected JLists: inProgressList and doneList
             FillList(inProgressList,1);
             FillList(doneList,2);
         }
     }//GEN-LAST:event_promoteToDoneButtonActionPerformed
 
+    //This method describes the behavior when the delete button is pressed
     private void deleteTaskButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTaskButtonActionPerformed
+        //Ensure an item is selected from the list.
         if (doneList.getSelectedIndex() >= 0){
+            
+            //Store the currently selected item into a Task object
             Task temp = (Task) doneList.getSelectedValue();
-
+            
+            //Invoke the SQLConnect method delete() with the current task
             database.delete(temp);
+            
+            //Refresh the doneList
             FillList(doneList,2);
         }
    
     }//GEN-LAST:event_deleteTaskButtonActionPerformed
 
+    //This method describes the behavior to occur when the New Task button is pressed
     private void newTaskButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newTaskButtonActionPerformed
-
+        //Invoke a new showInputDialog pop-up GUI pane. Prompts the user
+        //to enter new text. This text is returned as a string to newToDotxt
         String newToDotxt = JOptionPane.showInputDialog(null,"New Task:","New Task",JOptionPane.PLAIN_MESSAGE);
         
-        //If cancel is hit, newToDotxt is null. If okay is hit, but no text is entered, newToDotxt is not null but empty "". 
+        //If cancel is hit, newToDotxt is null. If okay is hit, but no text is entered, newToDotxt is not null but empty "".
+        //If there is actually any text returned, it will be addded to the database 
+        //via the add() method in SQLConnect.java. Parameters are a String name and
+        //a String of the task to be added. 
         if (newToDotxt != null && newToDotxt.length() > 0)
         {
             database.add(name, newToDotxt);
+
+            //Refresh the toDoList.
+            FillList(toDoList,0);
         }
-        FillList(toDoList,0);
+        
         
     }//GEN-LAST:event_newTaskButtonActionPerformed
 
+    //This method describes the actions to occur when the edit task button is pressed
     private void editTaskButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editTaskButtonActionPerformed
+        //Ensure an item in the toDoList is selected for editing.
         if (toDoList.getSelectedIndex() >= 0)
         {
+            //Put the selected item into a Task object.
             Task temp = (Task) toDoList.getSelectedValue();
+            
+            //Create a new InputDialog populated with the task test from the selected item.
+            //This will return a new String stored in editedToDotxt
             String editedToDotxt = (String)JOptionPane.showInputDialog(null, "Edit Task:","Edit Task", JOptionPane.QUESTION_MESSAGE,null,null,temp.toString());
             
-            //Will be null if user hits cancel.
+            //If the user cancels, the returned string is null. If it's not null
+            //editing needs to be done.
             if (editedToDotxt != null)
             {
+                //If the new text has some length, execute edit() on the database
+                //See SQLConnect.java for details. edit() expects a task passed to it
+                //The task passed to it should contain the new text string of the task
+                //and the unique reference number of database entry to be updated.
                 if (editedToDotxt.length() > 0)
                 {
-                    database.edit(new Task(editedToDotxt,temp.getReference()));
+                    try {
+                        database.edit(new Task(editedToDotxt,temp.getReference()));
+                    } catch (Task.TaskException ex) {
+                        Logger.getLogger(TaskManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 //else if the text is empty, assume they want to delete the task rather than have a task with an empty string "" 
+                //Execute the database's delete() method, which expects a Task object as a paramter.
                 else
                 {
                     database.delete(temp);
                 }
+                
+                //Refresh the toDoList 
                 FillList(toDoList,0);
             }
         }
     }//GEN-LAST:event_editTaskButtonActionPerformed
 
+    //Actions to occur when the log-out menu item is selected
     private void LogOutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogOutMenuItemActionPerformed
+        //Clear the details of the current GUI
         toDoLabel.setText(null);
         inProgressLabel.setText(null);
         doneLabel.setText(null);
         this.name = null;
         TitleLabel.setText(null);
+        //Dispose the current window
         dispose();
+        //re-execute the startup() routine.
         startup();
         setVisible(true);
         
     }//GEN-LAST:event_LogOutMenuItemActionPerformed
 
+    //Actions to occur when the quit menu item is selected
     private void QuitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_QuitMenuItemActionPerformed
+        //End program. 
         System.exit(0);
     }//GEN-LAST:event_QuitMenuItemActionPerformed
 

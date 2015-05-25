@@ -6,13 +6,14 @@
 package taskmanager;
 
 /**
- *
+ * The User class, used for logging into the system.  
  * @author scott
  */
 public class User {
     private String name;
     private String password;
     
+    //Constructor for a given name and password
     public User(String name, String pwd)
     {
         this.name = name;
@@ -33,7 +34,8 @@ public class User {
         this.name = name;
     }
 
-
+    //Determines if this user is the same as the the User to_match based on the
+    //username and password.
     public Boolean isGood(User to_match) {
         return this.name.equals(to_match.name) && this.password.equals(to_match.password);
     }
