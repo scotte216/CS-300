@@ -74,6 +74,8 @@ public class SQLConnect {
     //Tasktype will = 0 as a new task. 
     public void add(String name, String newToDo)
     {
+        if (newToDo == null || name == null || newToDo.length() == 0 || name.length() == 0 )
+            return;
         try {
             //Open a connection and create a statement and query.
             Connection con =  ConnectDB();
@@ -144,7 +146,7 @@ public class SQLConnect {
         //Checks to ensure the toTaskType is a valid number. 
         if (toTaskType < 0 || toTaskType > 2)
         {
-            System.out.println("Error in SQLConnect.java.promote() -- toTaskType must be 0, 1, or 2");
+            System.out.println("Error in SQLConnect.java.promote() -- toTaskType must be 0, 1 or 2");
             return;
         }
         

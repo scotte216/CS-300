@@ -42,24 +42,24 @@ public class TaskTest {
 
     @Test
     public void testGetReference() throws TaskException {
-
-
             System.out.println("getReference");
-            
             
             assertTrue(1 == new Task("Task",1).getReference());
             assertTrue(2 == new Task("Task",2).getReference());
             
             assertTrue(1 == new Task("",1).getReference());
             assertTrue(2 == new Task("",2).getReference());
-            
+
+            assertTrue(2147483646 == new Task("Task",2147483646).getReference());
+            assertTrue(2147483647 == new Task("Task",2147483647).getReference()); 
             
             assertFalse(0 == new Task("Task",1).getReference());
             assertFalse(2 == new Task("Task",1).getReference());
             
             assertFalse(1 == new Task("Task",2).getReference());
             assertFalse(3 == new Task("Task",2).getReference());
-
+            
+            assertTrue(2147483647 == new Task("Task",2147483647).getReference());
     }
     
      /**
@@ -86,17 +86,23 @@ public class TaskTest {
     }
     
     @Test (expected=TaskException.class)
-    public void testGetReferenceNeg() throws TaskException
+    public void testGetReferenceZero() throws TaskException
     {
         Task temp2 = new Task("task with erroneous reference number",0);
     }
+    
+    @Test (expected=TaskException.class)
+    public void testGetReferenceNeg() throws TaskException
+    {
+        Task temp2 = new Task("task with erroneous reference number",-1);
+    }    
+    
     /**
      * Test of toString method, of class Task.
      */
     @Test
     public void testToString() {
         try {
-            
             System.out.println("toString");
             
             Task instance = new Task("abcd",1);
@@ -124,7 +130,6 @@ public class TaskTest {
         } catch (Task.TaskException ex) {
             System.out.println(ex);
         }
-        
     }
     
 }

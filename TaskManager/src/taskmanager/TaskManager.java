@@ -176,10 +176,13 @@ public class TaskManager extends javax.swing.JFrame {
 
         doneLabel.setText("Done");
 
+        doneList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         doneScrollPane.setViewportView(doneList);
 
+        inProgressList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         inProgressScrollPane.setViewportView(inProgressList);
 
+        toDoList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         toDoScrollPane.setViewportView(toDoList);
 
         TitleLabel.setText("Title");
