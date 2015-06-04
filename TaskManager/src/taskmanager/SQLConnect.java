@@ -47,6 +47,7 @@ public class SQLConnect {
     //0 = to do
     //1 = in progress
     //2 = done
+    // Note: this method doesn't use prepared statements since it is only used internally.
     public ResultSet getResults(String name,int task_type)
     {
         //Error checking for task_type being a valid number. 
@@ -79,12 +80,17 @@ public class SQLConnect {
         try {
             //Open a connection and create a statement and query.
             Connection con =  ConnectDB();
-            Statement stmt = con.createStatement();
+            PreparedStatement prepStmt;
             
             //With NULL for an integer unique value, SQLite will automatically pick the next biggest integer for
             //the REFERENCE number
-            String query = "INSERT INTO TASKS VALUES(NULL,'"+name+"','"+newToDo+"','0')";
-            stmt.execute(query);
+            String query = "INSERT INTO TASKS VALUES(NULL, ?, ?, '0')";
+            prepStmt = con.prepareStatement(query);
+            
+            prepStmt.setString(1,name);
+            prepStmt.setString(2, newToDo);
+            
+            prepStmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(SQLConnect.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -106,9 +112,14 @@ public class SQLConnect {
             //open a connection and create a query for the statement. This will only update the TASKS column using
             //the reference number as a way of finding the entry.
             Connection con = ConnectDB();
-            Statement stmt = con.createStatement();
-            String query =  "UPDATE TASKS SET TASK = '"+edited_task.toString()+"' WHERE REFERENCE  = '"+edited_task.getReference()+"'";
-            stmt.execute(query);
+            PreparedStatement prepStmt;
+            
+            String query = "UPDATE TASKS SET TASK = ? WHERE REFERENCE = '"+ edited_task.getReference() +"'";
+            prepStmt = con.prepareStatement(query);
+            
+            prepStmt.setString(1, edited_task.toString());
+            
+            prepStmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(SQLConnect.class.getName()).log(Level.SEVERE, null, ex);
         }
